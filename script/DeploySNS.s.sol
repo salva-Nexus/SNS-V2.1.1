@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Script, console } from "forge-std/Script.sol";
 import { BaseRegistry } from "../src/BaseRegistry.sol";
 import { Singleton } from "../src/Singleton.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 contract DeploySNS is Script {
     string[] internal _defaultPublicNamespaces = ["@salva", "@base", "@ngns"];
@@ -31,7 +31,7 @@ contract DeploySNS is Script {
         Singleton singleton = Singleton(proxyAddress);
         console.log("Singleton Proxy:", proxyAddress);
 
-        // 3. Bypass Quorum via Helper (cleans up EVM stack frame)
+        // 3. Bypass Quorum
         _executeMultisigSetImpl(multisig, proxyAddress, baseRegistryImplAddress);
 
         // 4. Verify BaseRegistry Implementation
@@ -68,11 +68,11 @@ contract DeploySNS is Script {
         bytes32 pHash = abi.decode(data, (bytes32));
 
         // Approve
-        (ok, ) = multisig.call(abi.encodeWithSignature("approve(bytes32)", pHash));
+        (ok,) = multisig.call(abi.encodeWithSignature("approve(bytes32)", pHash));
         require(ok, "Approve failed");
 
         // Execute
-        (ok, ) = multisig.call(
+        (ok,) = multisig.call(
             abi.encodeWithSignature(
                 "execute(address,uint256,bytes,uint256)", target, 0, setImplData, nonce
             )

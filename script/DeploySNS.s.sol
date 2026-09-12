@@ -3,22 +3,12 @@ pragma solidity ^0.8.30;
 
 import { BaseRegistry } from "../src/BaseRegistry.sol";
 import { Singleton } from "../src/Singleton.sol";
+import { Addresses } from "./Addresses.s.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { Script, console } from "forge-std/Script.sol";
 
-contract DeploySNS is Script {
-    string[] internal _defaultPublicNamespaces = ["@salva", "@base", "@ngns"];
-    // Ethereum
-    uint256 public constant ETH_MAINNET = 1;
-    uint256 public constant ETH_SEPOLIA = 11155111;
-
-    // Base
-    uint256 public constant BASE_MAINNET = 8453;
-    uint256 public constant BASE_SEPOLIA = 84532;
-
-    // BNB Smart Chain
-    uint256 public constant BSC_MAINNET = 56;
-    uint256 public constant BSC_TESTNET = 97;
+contract DeploySNS is Script, Addresses {
+    string[] internal _defaultPublicNamespaces = ["@sant", "@ngns"];
 
     function run()
         external
@@ -55,7 +45,6 @@ contract DeploySNS is Script {
         console.log("--- SNS Deployment Complete ---");
         // =============================BASE TESTNET===================================
         // Singleton Proxy: 0xC9Eaa3DD7c87bE3269677F281C59A063201D4e09
-        // BaseRegistry Impl: 0xB6adD04c76D6e398eBB15CD9B1De052AA442F956
         // Registry Address For  @salva :  0x9b29bdD5B864eC8B7Cd69AC87caB55d10BCcA14D
         // Registry Address For  @base  :  0x60130D8bbE18D2464b6FF1C2680B074f25de0421
         // Registry Address For  @ngns  :  0xa1f9bb9cf82c873a3dF6F8ec14146137949Ea7cF
@@ -126,17 +115,5 @@ contract DeploySNS is Script {
             )
         );
         require(ok, "Execute failed");
-    }
-
-    function _multisig() internal view returns (address) {
-        return block.chainid == BASE_SEPOLIA
-            ? address(0x7Fe2bB5D44bFE124A7eDbE507035246e6327CB3A)
-            : block.chainid == BASE_MAINNET
-                ? address(0x1234)
-                : block.chainid == BSC_MAINNET
-                    ? address(0x1234)
-                    : block.chainid == BSC_TESTNET
-                        ? address(0x1234)
-                        : block.chainid == ETH_SEPOLIA ? address(0x1234) : address(0x1234);
     }
 }

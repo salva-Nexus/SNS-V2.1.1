@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Router } from "./Router.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {
     UUPSUpgradeable
 } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract Singleton is Router, Initializable, UUPSUpgradeable {
+import { Name } from "./Aliases/Name.sol";
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
+
+contract Singleton is Name, Initializable, UUPSUpgradeable {
+    using Clones for address;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -71,6 +75,18 @@ contract Singleton is Router, Initializable, UUPSUpgradeable {
         registryAddr = _initializeRegistry(namespaceHandle, owners);
         _nsKeyToAddress[nsKey] = registryAddr;
         emit RegistryInitialized(nsKey, registryAddr, namespaceHandle, owners);
+    }
+
+    function _initializeRegistry(string memory nspace, address[] memory owners)
+        internal
+        returns (address clone)
+    {
+        clone = BaseRegistryImpl.clone();
+        bytes memory initData = abi.encodeWithSignature(
+            "initialize(string,address,address[])", nspace, address(this), owners
+        );
+        (bool initSuccess,) = clone.call(initData);
+        if (!initSuccess) revert Singleton__RegistryInitFailed();
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyMultiSig { }

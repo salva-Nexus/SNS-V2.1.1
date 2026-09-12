@@ -21,7 +21,7 @@
 
 ## Deployments
 
-| Network | Singleton (ERC-1967 Proxy) |
+| Network | Singleton |
 |---|---|
 | Base Mainnet | `0x` |
 | Base Sepolia (Testnet) | `0xC9Eaa3DD7c87bE3269677F281C59A063201D4e09` |

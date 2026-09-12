@@ -4,6 +4,7 @@ pragma solidity ^0.8.30;
 import { BaseRegistry } from "../src/BaseRegistry.sol";
 import { Errors } from "../src/utils/Errors.sol";
 import { BaseTest } from "./BaseTest.t.sol";
+import { console } from "forge-std/console.sol";
 
 contract Singleton is BaseTest {
     function test_InitializeRegistry_Success() public view {

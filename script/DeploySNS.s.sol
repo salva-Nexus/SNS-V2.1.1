@@ -8,12 +8,23 @@ import { Script, console } from "forge-std/Script.sol";
 
 contract DeploySNS is Script {
     string[] internal _defaultPublicNamespaces = ["@salva", "@base", "@ngns"];
+    // Ethereum
+    uint256 public constant ETH_MAINNET = 1;
+    uint256 public constant ETH_SEPOLIA = 11155111;
+
+    // Base
+    uint256 public constant BASE_MAINNET = 8453;
+    uint256 public constant BASE_SEPOLIA = 84532;
+
+    // BNB Smart Chain
+    uint256 public constant BSC_MAINNET = 56;
+    uint256 public constant BSC_TESTNET = 97;
 
     function run()
         external
         returns (address proxyAddress, address implAddress, address baseRegistryImplAddress)
     {
-        address multisig = address(0x7Fe2bB5D44bFE124A7eDbE507035246e6327CB3A);
+        address multisig = _multisig();
         console.log("--- Starting SNS Deployment ---");
         console.log("Multisig Admin:", multisig);
 
@@ -39,17 +50,54 @@ contract DeploySNS is Script {
         console.log("BaseRegistry Implementation verified on Singleton");
 
         // 5. Bootstrap Default Public Namespaces
+        _executeInitPublicRegistries(address(singleton), multisig);
+        vm.stopBroadcast();
+        console.log("--- SNS Deployment Complete ---");
+        // =============================BASE TESTNET===================================
+        // Singleton Proxy: 0xC9Eaa3DD7c87bE3269677F281C59A063201D4e09
+        // BaseRegistry Impl: 0xB6adD04c76D6e398eBB15CD9B1De052AA442F956
+        // Registry Address For  @salva :  0x9b29bdD5B864eC8B7Cd69AC87caB55d10BCcA14D
+        // Registry Address For  @base  :  0x60130D8bbE18D2464b6FF1C2680B074f25de0421
+        // Registry Address For  @ngns  :  0xa1f9bb9cf82c873a3dF6F8ec14146137949Ea7cF
+    }
+
+    function _executeInitPublicRegistries(address target, address multisig) internal {
         address[] memory publicOwners = new address[](0);
         for (uint256 i = 0; i < _defaultPublicNamespaces.length; i++) {
             string memory ns = _defaultPublicNamespaces[i];
-            address clone = singleton.initializeRegistry(ns, publicOwners);
-            console.log("Initialized Public Namespace:", ns);
-            console.log("  -> Key:", vm.toString(singleton.key(bytes(ns))));
-            console.log("  -> Registry Clone:", clone);
-        }
+            (bool ok, bytes memory data) = multisig.call(abi.encodeWithSignature("nonce()"));
+            require(ok, "Nonce call failed");
+            uint256 nonce = abi.decode(data, (uint256));
 
-        vm.stopBroadcast();
-        console.log("--- SNS Deployment Complete ---");
+            bytes memory initRegistryData =
+                abi.encodeWithSignature("initializeRegistry(string,address[])", ns, publicOwners);
+            // Propose
+            (ok, data) = multisig.call(
+                abi.encodeWithSignature(
+                    "propose(address,uint256,bytes)", target, 0, initRegistryData
+                )
+            );
+            require(ok && data.length >= 0x20, "Propose failed");
+            bytes32 pHash = abi.decode(data, (bytes32));
+
+            // Approve
+            (ok,) = multisig.call(abi.encodeWithSignature("approve(bytes32)", pHash));
+            require(ok, "Approve failed");
+
+            // Execute
+            (ok, data) = multisig.call(
+                abi.encodeWithSignature(
+                    "execute(address,uint256,bytes,uint256)", target, 0, initRegistryData, nonce
+                )
+            );
+            require(ok, "Execute failed");
+            address registry;
+            assembly {
+                registry := mload(add(data, 0x60))
+            }
+            console.log("Initialized Public Namespace For ", ns);
+            console.log("Registry Address For ", _defaultPublicNamespaces[i], ": ", registry);
+        }
     }
 
     function _executeMultisigSetImpl(address multisig, address target, address impl) internal {
@@ -78,5 +126,17 @@ contract DeploySNS is Script {
             )
         );
         require(ok, "Execute failed");
+    }
+
+    function _multisig() internal view returns (address) {
+        return block.chainid == BASE_SEPOLIA
+            ? address(0x7Fe2bB5D44bFE124A7eDbE507035246e6327CB3A)
+            : block.chainid == BASE_MAINNET
+                ? address(0x1234)
+                : block.chainid == BSC_MAINNET
+                    ? address(0x1234)
+                    : block.chainid == BSC_TESTNET
+                        ? address(0x1234)
+                        : block.chainid == ETH_SEPOLIA ? address(0x1234) : address(0x1234);
     }
 }

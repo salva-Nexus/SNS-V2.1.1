@@ -13,7 +13,7 @@ abstract contract AliasLib is Errors, Storage, Context {
             revert Singleton__NspaceNotRegistered();
         }
         uint256 owners = IBaseRegistry(registry).owners();
-        // Public registries do now have owners
+        // Public registries do not have owners
         if (owners > 0) {
             bool isOwner = IBaseRegistry(registry).isOwner(_msgSender());
             if (!isOwner) revert Singleton__NotAllowed();

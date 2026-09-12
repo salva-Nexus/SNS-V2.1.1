@@ -2,13 +2,8 @@
 pragma solidity ^0.8.30;
 
 abstract contract Storage {
-    address internal immutable MULTISIG;
-    address internal BaseRegistryImpl;
-
-    struct NamespaceConfig {
-        address registryAddress;
-        uint96 handleLength;
-    }
-
-    mapping(bytes32 => NamespaceConfig) internal _namespaceConfigs;
+    address public MULTISIG;
+    address public BaseRegistryImpl;
+    mapping(bytes4 => address) internal _nsKeyToAddress;
+    uint256[50] private __gap;
 }

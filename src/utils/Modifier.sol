@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Errors } from "./Errors.sol";
-import { Storage } from "./Storage.sol";
+import { AliasLib } from "./AliasLib.sol";
 
-abstract contract Modifier is Storage, Errors {
+abstract contract Modifier is AliasLib {
     modifier onlyMultiSig() {
-        if (msg.sender != MULTISIG) revert Singleton__NotMultiSig();
+        if (_msgSender() != MULTISIG) revert Singleton__NotMultiSig();
         _;
     }
 }

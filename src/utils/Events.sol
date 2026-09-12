@@ -8,4 +8,8 @@ abstract contract Events {
         string namespaceHandle,
         address[] owners
     );
+
+    event BaseRegistryImplUpdated(address indexed newBaseRegistryImpl);
+    event NameLinked(bytes32 indexed node, bytes32 indexed data, address indexed operator);
+    event NameUnlinked(bytes32 indexed node, address indexed operator);
 }

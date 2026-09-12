@@ -2,16 +2,18 @@
 pragma solidity ^0.8.30;
 
 import { IBaseRegistry } from "./interfaces/IBaseRegistry.sol";
+import { Context } from "./utils/Context.sol";
 import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-contract BaseRegistry is IBaseRegistry, Initializable {
+contract BaseRegistry is IBaseRegistry, Initializable, Context {
     address public singleton;
     string public namespace;
+    uint256 public owners;
     mapping(address => bool) public isOwner;
-    mapping(bytes32 => bytes) private _records;
+    mapping(bytes32 => bytes32) private _records;
 
-    modifier onlySingleton() {
-        if (msg.sender != singleton) revert BaseRegistry__NotSingleton();
+    modifier onlyAuthorized() {
+        if (_msgSender() != singleton && !isOwner[_msgSender()]) revert BaseRegistry__NotAllowed();
         _;
     }
 
@@ -23,51 +25,50 @@ contract BaseRegistry is IBaseRegistry, Initializable {
     function initialize(
         string calldata namespaceHandle,
         address singleton_,
-        address[] calldata owners
+        address[] calldata owners_
     ) external initializer {
         if (singleton_ == address(0)) revert BaseRegistry__InvalidInput();
 
         namespace = namespaceHandle;
         singleton = singleton_;
 
-        uint256 len = owners.length;
-        for (uint256 i = 0; i < len;) {
-            address owner = owners[i];
-            if (owner != address(0)) {
-                isOwner[owner] = true;
-                emit OwnerAdded(owner);
-            }
-            unchecked {
-                i++;
+        uint256 len = owners_.length;
+        if (len > 0) {
+            for (uint256 i = 0; i < len;) {
+                address owner = owners_[i];
+                if (owner != address(0)) {
+                    isOwner[owner] = true;
+                    owners++;
+                    emit OwnerAdded(owner);
+                }
+                unchecked {
+                    i++;
+                }
             }
         }
 
-        emit Initialized(namespaceHandle, singleton_, owners);
+        emit Initialized(namespaceHandle, singleton_, owners_);
     }
 
-    function link(bytes calldata name, bytes calldata data) external onlySingleton returns (bool) {
-        bytes32 nameHash = keccak256(name);
-        _records[nameHash] = data;
-
-        emit RecordLinked(nameHash, data);
+    function link(bytes32 node, bytes32 data) external onlyAuthorized returns (bool) {
+        bytes32 linkedData = _records[node];
+        if (linkedData != bytes32(0)) revert BaseRegistry__NameTaken();
+        _records[node] = data;
+        emit RecordLinked(node, data);
         return true;
     }
 
-    function unlink(bytes calldata name) external onlySingleton returns (bool) {
-        bytes32 nameHash = keccak256(name);
-        delete _records[nameHash];
-
-        emit RecordUnlinked(nameHash);
+    function unlink(bytes32 node) external onlyAuthorized returns (bool) {
+        delete _records[node];
+        emit RecordUnlinked(node);
         return true;
     }
 
-    function resolve(bytes calldata name) external view returns (bytes memory) {
-        return _records[keccak256(name)];
+    function resolve(bytes32 node) external view returns (bytes32) {
+        return _records[node];
     }
 
-    function resolveToAddr(bytes calldata name) external view returns (address) {
-        bytes memory data = _records[keccak256(name)];
-        if (data.length < 20) return address(0);
-        return abi.decode(data, (address));
+    function resolveToAddr(bytes32 node) external view returns (address) {
+        return address(uint160(uint256(_records[node])));
     }
 }

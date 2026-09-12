@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import { Events } from "./utils/Events.sol";
-import { Modifier } from "./utils/Modifier.sol";
+import { Name } from "./Aliases/Name.sol";
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 
-abstract contract Router is Modifier, Events {
+abstract contract Router is Name {
     using Clones for address;
 
     function _initializeRegistry(string memory nspace, address[] memory owners)

@@ -34,7 +34,7 @@ contract DeploySNS is Script {
         // 3. Bypass Quorum
         _executeMultisigSetImpl(multisig, proxyAddress, baseRegistryImplAddress);
 
-        // 4. Verify BaseRegistry Implementation 
+        // 4. Verify BaseRegistry Implementation
         assert(singleton.BaseRegistryImpl() == baseRegistryImplAddress);
         console.log("BaseRegistry Implementation verified on Singleton");
 

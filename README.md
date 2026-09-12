@@ -9,7 +9,7 @@
 <br/>
 
 [![Network](https://img.shields.io/badge/Network-Base_Mainnet_%26_Testnet-0052FF?style=for-the-badge&logo=coinbase)](https://base.org)
-[![Language](https://img.shields.io/badge/Stack-Solidity_|_Yul_Assembly-363636?style=for-the-badge&logo=ethereum)](https://soliditylang.org)
+[![Language](https://img.shields.io/badge/Stack-Solidity-363636?style=for-the-badge&logo=ethereum)](https://soliditylang.org)
 [![License](https://img.shields.io/badge/License-MIT-D4AF37?style=for-the-badge)](./LICENSE)
 [![Status](https://img.shields.io/badge/Status-Live_on_Base-00C853?style=for-the-badge)](https://basescan.org)
 

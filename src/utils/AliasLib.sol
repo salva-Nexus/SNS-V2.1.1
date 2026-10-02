@@ -7,21 +7,19 @@ import { Errors } from "./Errors.sol";
 import { Storage } from "./Storage.sol";
 
 abstract contract AliasLib is Errors, Storage, Context {
-    function _verifyOwnership(bytes4 nsKey) internal view returns (address) {
+    function _verifyOwnership(bytes32 nsKey) internal view returns (address) {
         address registry = _nsKeyToAddress[nsKey];
         if (registry == address(0)) {
             revert Singleton__NspaceNotRegistered();
         }
-        uint256 owners = IBaseRegistry(registry).owners();
-        // Public registries do not have owners
-        if (owners > 0) {
-            bool isOwner = IBaseRegistry(registry).isOwner(_msgSender());
-            if (!isOwner) revert Singleton__NotAllowed();
-        }
+
+        bool isOwner = IBaseRegistry(registry).isOwner(_msgSender());
+        if (!isOwner) revert Singleton__NotAllowed();
+
         return registry;
     }
 
-    function _computeNode(bytes32 nameHash, bytes4 nsKey) internal pure returns (bytes32) {
+    function _computeNode(bytes32 nameHash, bytes32 nsKey) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(nameHash, nsKey));
     }
 
@@ -30,7 +28,7 @@ abstract contract AliasLib is Errors, Storage, Context {
         else IBaseRegistry(registry).unlink(finalHash);
     }
 
-    function _resolve(bytes32 nameHash, bytes4 nsKey) internal view returns (bytes32) {
+    function _resolve(bytes32 nameHash, bytes32 nsKey) internal view returns (bytes32) {
         address registry = _nsKeyToAddress[nsKey];
         if (registry == address(0)) return bytes32(0);
         bytes32 node = _computeNode(nameHash, nsKey);

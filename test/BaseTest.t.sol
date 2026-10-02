@@ -34,7 +34,8 @@ abstract contract BaseTest is Test {
         ERC1967Proxy proxy = new ERC1967Proxy(address(singleton), initData);
         singleton = Singleton(address(proxy));
 
-        address[] memory owners = new address[](0);
+        address[] memory owners = new address[](1);
+        owners[0] = multisig;
 
         _changePrank(multisig);
         singleton.setBaseRegistryImpl(address(baseRegistryImpl));

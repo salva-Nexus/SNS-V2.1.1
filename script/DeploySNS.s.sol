@@ -8,7 +8,7 @@ import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy
 import { Script, console } from "forge-std/Script.sol";
 
 contract DeploySNS is Script, Addresses {
-    string[] internal _defaultPublicNamespaces = ["@sant", "@ngns"];
+    string[] internal _defaultNamespaces = ["@sant", "@ngns"];
 
     function run()
         external
@@ -40,26 +40,30 @@ contract DeploySNS is Script, Addresses {
         console.log("BaseRegistry Implementation verified on Singleton");
 
         // 5. Bootstrap Default Public Namespaces
-        _executeInitPublicRegistries(address(singleton), multisig);
+        _executeInitRegistries(address(singleton), multisig);
         vm.stopBroadcast();
         console.log("--- SNS Deployment Complete ---");
         // =============================BASE TESTNET===================================
-        // Singleton Proxy: 0xC9Eaa3DD7c87bE3269677F281C59A063201D4e09
-        // Registry Address For  @salva :  0x9b29bdD5B864eC8B7Cd69AC87caB55d10BCcA14D
-        // Registry Address For  @base  :  0x60130D8bbE18D2464b6FF1C2680B074f25de0421
-        // Registry Address For  @ngns  :  0xa1f9bb9cf82c873a3dF6F8ec14146137949Ea7cF
+        // Singleton Proxy: 0xdc9711f3E85c11f35735AAE148B969e6cE5F3b9D
+        // Registry Address For  @sant :  0x06dE98475D187ee3EF086eE6684520f581BEB5C5
+        // Registry Address For  @ngns  :  0x0252e104F207013DEe89745291B4aB8E642a2ac2
     }
 
-    function _executeInitPublicRegistries(address target, address multisig) internal {
-        address[] memory publicOwners = new address[](0);
-        for (uint256 i = 0; i < _defaultPublicNamespaces.length; i++) {
-            string memory ns = _defaultPublicNamespaces[i];
+    function _executeInitRegistries(address target, address multisig) internal {
+        address[] memory Owners = new address[](4);
+        Owners[0] = multisig;
+        Owners[1] = address(0x17cb8Db361b37AE05137bdE86e472D8d9EDCF7c0);
+        Owners[2] = address(0x708657DA3e4eFFa7334779C9A1E759DC38A5BF94);
+        Owners[3] = address(0xfD5A9828bac27495FAb7F6174b3de386E0554187);
+
+        for (uint256 i = 0; i < _defaultNamespaces.length; i++) {
+            string memory ns = _defaultNamespaces[i];
             (bool ok, bytes memory data) = multisig.call(abi.encodeWithSignature("nonce()"));
             require(ok, "Nonce call failed");
             uint256 nonce = abi.decode(data, (uint256));
 
             bytes memory initRegistryData =
-                abi.encodeWithSignature("initializeRegistry(string,address[])", ns, publicOwners);
+                abi.encodeWithSignature("initializeRegistry(string,address[])", ns, Owners);
             // Propose
             (ok, data) = multisig.call(
                 abi.encodeWithSignature(
@@ -85,7 +89,7 @@ contract DeploySNS is Script, Addresses {
                 registry := mload(add(data, 0x60))
             }
             console.log("Initialized Public Namespace For ", ns);
-            console.log("Registry Address For ", _defaultPublicNamespaces[i], ": ", registry);
+            console.log("Registry Address For ", _defaultNamespaces[i], ": ", registry);
         }
     }
 

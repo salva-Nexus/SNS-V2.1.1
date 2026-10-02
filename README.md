@@ -77,7 +77,7 @@ SNS routes every namespace through a single Singleton contract, but the actual a
                               ▼
                 ┌───────────────────────────┐
                 │     Singleton (Router)     │
-                │  nsKey (bytes4) → registry │
+                │  nsKey (bytes32) → registry │
                 └─────────────┬──────────────┘
                               │  link / unlink / resolve
                               │  (nameHash, nsKey, data)
@@ -96,7 +96,7 @@ Handles are parsed off-chain before touching the chain:
 2. **Off-chain split:** name = `pay.alice`, namespace = `@salva`
 3. **Off-chain hashing:**
    - `nameHash = keccak256("pay.alice")` → `bytes32`
-   - `nsKey = bytes4(keccak256("@salva"))` → `bytes4`
+   - `nsKey = keccak256("@salva")` → `bytes32`
 4. **On-chain lookup:** `Singleton.resolve(nameHash, nsKey)`
    - Singleton finds the `@salva` registry from `nsKey`
    - Singleton derives the record's storage key from `(nameHash, nsKey)`

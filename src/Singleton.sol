@@ -48,7 +48,7 @@ contract Singleton is Name, Initializable, UUPSUpgradeable {
         }
 
         // Hash namespace string for mapping key
-        bytes4 nsKey = key(nsBytes);
+        bytes32 nsKey = key(nsBytes);
         address initializedRegistry = registry(nsKey);
 
         if (initializedRegistry != address(0)) {
@@ -71,7 +71,7 @@ contract Singleton is Name, Initializable, UUPSUpgradeable {
             revert Singleton__InvalidNamespaceFormat();
         }
 
-        bytes4 nsKey = key(nsBytes);
+        bytes32 nsKey = key(nsBytes);
         registryAddr = _initializeRegistry(namespaceHandle, owners);
         _nsKeyToAddress[nsKey] = registryAddr;
         emit RegistryInitialized(nsKey, registryAddr, namespaceHandle, owners);

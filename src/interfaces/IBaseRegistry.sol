@@ -5,6 +5,7 @@ interface IBaseRegistry {
     error BaseRegistry__NotAllowed();
     error BaseRegistry__InvalidInput();
     error BaseRegistry__NameTaken();
+    error BaseRegistry__MustInitializeWithAnOwner();
 
     event Initialized(string namespace, address singleton, address[] owners);
     event OwnerAdded(address indexed owner);
@@ -22,7 +23,6 @@ interface IBaseRegistry {
     function singleton() external view returns (address);
     function namespace() external view returns (string memory);
     function isOwner(address account) external view returns (bool);
-    function owners() external view returns (uint256);
 
     // Mutative Functions
     function link(bytes32 node, bytes32 data) external returns (bool);

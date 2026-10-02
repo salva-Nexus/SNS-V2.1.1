@@ -34,4 +34,4 @@ VERIFY-BASE-MAINNET:
 	forge verify-contract 0x1234 src/Singleton.sol:Singleton --chain-id 8453 --rpc-url ${BASE_MAINNET_RPC_URL} --etherscan-api-key ${ETHERSCAN_API_KEY} --watch
 
 VERIFY-BASE-TESTNET: 
-	forge verify-contract 0x545F1b8218c75c72497e96C06D7D5A4743b0e84f src/Singleton.sol:Singleton --chain-id 84532 --rpc-url ${BASE_SEPOLIA_RPC_URL} --etherscan-api-key ${ETHERSCAN_API_KEY} --watch
+	forge verify-contract 0xfaAF6eCc0DEaC38c112dc229aAdc9701b59E4222 src/Singleton.sol:Singleton --chain-id 84532 --rpc-url ${BASE_SEPOLIA_RPC_URL} --etherscan-api-key ${ETHERSCAN_API_KEY} --watch

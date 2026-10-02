@@ -8,7 +8,7 @@ import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable
 contract BaseRegistry is IBaseRegistry, Initializable, Context {
     address public singleton;
     string public namespace;
-    uint256 public owners;
+    address[] private owners;
     mapping(address => bool) public isOwner;
     mapping(bytes32 => bytes32) private _records;
 
@@ -33,12 +33,13 @@ contract BaseRegistry is IBaseRegistry, Initializable, Context {
         singleton = singleton_;
 
         uint256 len = owners_.length;
+        if (len == 0) revert BaseRegistry__MustInitializeWithAnOwner();
         if (len > 0) {
             for (uint256 i = 0; i < len;) {
                 address owner = owners_[i];
                 if (owner != address(0)) {
                     isOwner[owner] = true;
-                    owners++;
+                    owners.push(owner);
                     emit OwnerAdded(owner);
                 }
                 unchecked {
@@ -70,5 +71,9 @@ contract BaseRegistry is IBaseRegistry, Initializable, Context {
 
     function resolveToAddr(bytes32 node) external view returns (address) {
         return address(uint160(uint256(_records[node])));
+    }
+
+    function getOwners() external view returns (address[] memory) {
+        return owners;
     }
 }

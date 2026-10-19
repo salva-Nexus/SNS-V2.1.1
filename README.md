@@ -34,14 +34,6 @@
 
 Every namespace is deployed as its own registry contract, and that registry decides who's allowed to write to it — via a single property: how many owners it has.
 
-**Public namespaces** — like `@ngns, @sant` — belong to shared infrastructure or a protocol rather than a single person. They have no owners, so anyone can link into them. Because anyone can write, an alias here only means something if it names the person who put it there:
-
-```
-pay.bob@ngns                            ✅ clear — bob's payment alias
-pay.alice@sant                          ✅ clear — alice's payment alias
-pay@sant                                ✅ valid, but no owner reference, hard to knows who owns it
-```
-
 **Private namespaces** — like `@cboi`, `@chainlink` — already *are* an identity. Only the addresses registered as owners of that namespace may link or unlink inside it. Because the namespace itself already names its owner, aliases don't need a human-name prefix:
 
 ```

@@ -47,7 +47,6 @@ contract BaseRegistry is IBaseRegistry, Initializable, Context {
                 }
             }
         }
-
         emit Initialized(namespaceHandle, singleton_, owners_);
     }
 

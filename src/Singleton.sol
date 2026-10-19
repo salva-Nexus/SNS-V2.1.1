@@ -63,7 +63,6 @@ contract Singleton is Name, Initializable, UUPSUpgradeable {
     function reInitializeRegistry(string memory namespaceHandle, address[] memory owners)
         public
         payable
-        onlyMultiSig
         returns (address registryAddr)
     {
         bytes memory nsBytes = bytes(namespaceHandle);
@@ -72,6 +71,7 @@ contract Singleton is Name, Initializable, UUPSUpgradeable {
         }
 
         bytes32 nsKey = key(nsBytes);
+        _verifyOwnership(nsKey);
         registryAddr = _initializeRegistry(namespaceHandle, owners);
         _nsKeyToAddress[nsKey] = registryAddr;
         emit RegistryInitialized(nsKey, registryAddr, namespaceHandle, owners);

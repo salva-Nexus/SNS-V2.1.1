@@ -92,8 +92,13 @@ contract Singleton is BaseTest {
         address[] memory newOwners = new address[](1);
         newOwners[0] = bob;
 
-        _changePrank(multisig);
+        address currentOwner = privateRegistryClone.getOwners()[0];
+
+        _changePrank(currentOwner);
         address newClone = singleton.reInitializeRegistry(PRIVATE_NAMESPACE, newOwners);
+        // if current Onwer is not amongst the new initialized owners, they can't do anything
+        vm.expectRevert(abi.encodeWithSignature("Singleton__NotAllowed()"));
+        address newClone1 = singleton.reInitializeRegistry(PRIVATE_NAMESPACE, newOwners);
         _stopPrank();
 
         assertTrue(newClone != oldClone);

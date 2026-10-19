@@ -24,7 +24,7 @@ abstract contract Addresses {
 
     function _singleton() internal view returns (address) {
         return block.chainid == BASE_SEPOLIA
-            ? address(0xC9Eaa3DD7c87bE3269677F281C59A063201D4e09)
+            ? address(0xdc9711f3E85c11f35735AAE148B969e6cE5F3b9D)
             : address(0x1234);
     }
 }

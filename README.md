@@ -31,7 +31,6 @@
 ## SNS V2.1.1 Differentiator
 
 ### Protocol-Owned, Ownership-Aware Namespaces
-
 Every namespace is deployed as its own registry contract, and that registry decides who's allowed to write to it — via a single property: how many owners it has.
 
 **Private namespaces** — like `@cboi`, `@chainlink` — already *are* an identity. Only the addresses registered as owners of that namespace may link or unlink inside it. Because the namespace itself already names its owner, aliases don't need a human-name prefix:

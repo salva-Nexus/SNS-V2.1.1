@@ -74,8 +74,7 @@ SNS routes every namespace through a single Singleton contract, but the actual a
                               │  (nameHash, nsKey, data)
                ┌──────────────┼──────────────┐
                ▼                             ▼
-   Registry Clone (@ngns)         Registry Clone (@cboi)
-     public — anyone may link        private — only owner(s) may link
+   Registry Clone (@chainlink)         Registry Clone (@cboi)
      _records[node] → data           _records[node] → data
 ```
 
@@ -83,13 +82,13 @@ SNS routes every namespace through a single Singleton contract, but the actual a
 
 Handles are parsed off-chain before touching the chain:
 
-1. **Full handle:** `pay.alice@salva`
-2. **Off-chain split:** name = `pay.alice`, namespace = `@salva`
+1. **Full handle:** `pay.ngns@cExchange`
+2. **Off-chain split:** name = `pay.ngns`, namespace = `@cExchange`
 3. **Off-chain hashing:**
-   - `nameHash = keccak256("pay.alice")` → `bytes32`
-   - `nsKey = keccak256("@salva")` → `bytes32`
+   - `nameHash = keccak256("pay.ngns")` → `bytes32`
+   - `nsKey = keccak256("@cExchange")` → `bytes32`
 4. **On-chain lookup:** `Singleton.resolve(nameHash, nsKey)`
-   - Singleton finds the `@salva` registry from `nsKey`
+   - Singleton finds the `@cExchange` registry from `nsKey`
    - Singleton derives the record's storage key from `(nameHash, nsKey)`
    - The registry returns the stored record
 5. **Result:** the linked value — cast to an address via `resolveAddr()` when it represents a wallet.

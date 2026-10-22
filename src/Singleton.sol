@@ -47,16 +47,21 @@ contract Singleton is Name, Initializable, UUPSUpgradeable {
             revert Singleton__InvalidNamespaceFormat();
         }
 
-        // Hash namespace string for mapping key
+        // nsKey is already a hash, so it is used directly as the storage slot
         bytes32 nsKey = key(nsBytes);
-        address initializedRegistry = registry(nsKey);
+        address initializedRegistry;
+        assembly ("memory-safe") {
+            initializedRegistry := sload(nsKey)
+        }
 
         if (initializedRegistry != address(0)) {
             revert Singleton__DoubleInitialization();
         }
 
         registryAddr = _initializeRegistry(namespaceHandle, owners);
-        _nsKeyToAddress[nsKey] = registryAddr;
+        assembly ("memory-safe") {
+            sstore(nsKey, registryAddr)
+        }
         emit RegistryInitialized(nsKey, registryAddr, namespaceHandle, owners);
     }
 
@@ -73,7 +78,9 @@ contract Singleton is Name, Initializable, UUPSUpgradeable {
         bytes32 nsKey = key(nsBytes);
         _verifyOwnership(nsKey);
         registryAddr = _initializeRegistry(namespaceHandle, owners);
-        _nsKeyToAddress[nsKey] = registryAddr;
+        assembly ("memory-safe") {
+            sstore(nsKey, registryAddr)
+        }
         emit RegistryInitialized(nsKey, registryAddr, namespaceHandle, owners);
     }
 

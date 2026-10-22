@@ -50,26 +50,38 @@ contract BaseRegistry is IBaseRegistry, Initializable, Context {
         emit Initialized(namespaceHandle, singleton_, owners_);
     }
 
+    // Using assembly to avoid another hashing since node is already a hash of name + namespace
     function link(bytes32 node, bytes32 data) external onlyAuthorized returns (bool) {
-        bytes32 linkedData = _records[node];
+        bytes32 linkedData;
+        assembly ("memory-safe") {
+            linkedData := sload(node)
+        }
         if (linkedData != bytes32(0)) revert BaseRegistry__NameTaken();
-        _records[node] = data;
+        assembly ("memory-safe") {
+            sstore(node, data)
+        }
         emit RecordLinked(node, data);
         return true;
     }
 
     function unlink(bytes32 node) external onlyAuthorized returns (bool) {
-        delete _records[node];
+        assembly ("memory-safe") {
+            sstore(node, 0)
+        }
         emit RecordUnlinked(node);
         return true;
     }
 
-    function resolve(bytes32 node) external view returns (bytes32) {
-        return _records[node];
+    function resolve(bytes32 node) external view returns (bytes32 data) {
+        assembly ("memory-safe") {
+            data := sload(node)
+        }
     }
 
-    function resolveToAddr(bytes32 node) external view returns (address) {
-        return address(uint160(uint256(_records[node])));
+    function resolveToAddr(bytes32 node) external view returns (address addr) {
+        assembly ("memory-safe") {
+            addr := and(sload(node), 0xffffffffffffffffffffffffffffffffffffffff)
+        }
     }
 
     function getOwners() external view returns (address[] memory) {

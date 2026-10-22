@@ -4,8 +4,10 @@ pragma solidity ^0.8.30;
 import { Modifier } from "./Modifier.sol";
 
 abstract contract Views is Modifier {
-    function registry(bytes32 nsKey) public view returns (address) {
-        return _nsKeyToAddress[nsKey];
+    function registry(bytes32 nsKey) public view returns (address reg) {
+        assembly ("memory-safe") {
+            reg := sload(nsKey)
+        }
     }
 
     function key(bytes memory nspace) public pure returns (bytes32) {

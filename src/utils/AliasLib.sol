@@ -8,7 +8,10 @@ import { Storage } from "./Storage.sol";
 
 abstract contract AliasLib is Errors, Storage, Context {
     function _verifyOwnership(bytes32 nsKey) internal view returns (address) {
-        address registry = _nsKeyToAddress[nsKey];
+        address registry;
+        assembly ("memory-safe") {
+            registry := sload(nsKey)
+        }
         if (registry == address(0)) {
             revert Singleton__NspaceNotRegistered();
         }
@@ -29,7 +32,10 @@ abstract contract AliasLib is Errors, Storage, Context {
     }
 
     function _resolve(bytes32 nameHash, bytes32 nsKey) internal view returns (bytes32) {
-        address registry = _nsKeyToAddress[nsKey];
+        address registry;
+        assembly ("memory-safe") {
+            registry := sload(nsKey)
+        }
         if (registry == address(0)) return bytes32(0);
         bytes32 node = _computeNode(nameHash, nsKey);
         return IBaseRegistry(registry).resolve(node);
